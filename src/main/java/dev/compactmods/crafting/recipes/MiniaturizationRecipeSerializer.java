@@ -10,10 +10,9 @@ import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
-public class MiniaturizationRecipeSerializer extends ForgeRegistryEntry<RecipeSerializer<?>>
+public class MiniaturizationRecipeSerializer
         implements RecipeSerializer<MiniaturizationRecipe> {
 
     @Override

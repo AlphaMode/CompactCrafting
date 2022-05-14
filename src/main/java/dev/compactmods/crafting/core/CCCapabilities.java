@@ -5,26 +5,31 @@ import dev.compactmods.crafting.api.field.IActiveWorldFields;
 import dev.compactmods.crafting.api.field.IFieldListener;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.api.projector.IProjectorRenderInfo;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import dev.compactmods.crafting.client.render.ClientProjectorRenderInfo;
+import dev.compactmods.crafting.field.ActiveWorldFields;
+import dev.onyxstudios.cca.api.v3.component.ComponentKey;
+import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
+import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
+import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
+import dev.onyxstudios.cca.api.v3.world.WorldComponentFactoryRegistry;
+import dev.onyxstudios.cca.api.v3.world.WorldComponentInitializer;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID)
-public class CCCapabilities {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-    public static Capability<IProjectorRenderInfo> TEMP_PROJECTOR_RENDERING = CapabilityManager.get(new CapabilityToken<>() {
+public class CCCapabilities implements WorldComponentInitializer, EntityComponentInitializer {
+
+    public static ComponentKey<IProjectorRenderInfo> TEMP_PROJECTOR_RENDERING = ComponentRegistry.getOrCreate(new ResourceLocation(CompactCrafting.MOD_ID, "projector_renderer"), IProjectorRenderInfo.class);
+
+    public static ComponentKey<IActiveWorldFields> FIELDS = ComponentRegistry.getOrCreate(new ResourceLocation(CompactCrafting.MOD_ID, "fields"), IActiveWorldFields.class);
+
+    public static ComponentKey<IFieldListener> FIELD_LISTENER = CapabilityManager.get(new CapabilityToken<>() {
     });
 
-    public static Capability<IActiveWorldFields> FIELDS = CapabilityManager.get(new CapabilityToken<>() {
-    });
-
-    public static Capability<IFieldListener> FIELD_LISTENER = CapabilityManager.get(new CapabilityToken<>() {
-    });
-
-    public static Capability<IMiniaturizationField> MINIATURIZATION_FIELD = CapabilityManager.get(new CapabilityToken<>() {
+    public static ComponentKey<IMiniaturizationField> MINIATURIZATION_FIELD = CapabilityManager.get(new CapabilityToken<>() {
     });
 
     @SubscribeEvent
@@ -33,5 +38,15 @@ public class CCCapabilities {
         evt.register(IMiniaturizationField.class);
         evt.register(IActiveWorldFields.class);
         evt.register(IFieldListener.class);
+    }
+
+    @Override
+    public void registerWorldComponentFactories(WorldComponentFactoryRegistry registry) {
+        registry.register(FIELDS, ActiveWorldFields::new);
+    }
+
+    @Override
+    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+        registry.registerForPlayers(TEMP_PROJECTOR_RENDERING, ClientProjectorRenderInfo::new);
     }
 }

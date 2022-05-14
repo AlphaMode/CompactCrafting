@@ -1,6 +1,5 @@
 package dev.compactmods.crafting.core;
 
-import java.util.function.Supplier;
 import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.projector.FieldProjectorBlock;
 import dev.compactmods.crafting.projector.FieldProjectorEntity;
@@ -8,19 +7,20 @@ import dev.compactmods.crafting.proxies.block.MatchFieldProxyBlock;
 import dev.compactmods.crafting.proxies.block.RescanFieldProxyBlock;
 import dev.compactmods.crafting.proxies.data.MatchFieldProxyEntity;
 import dev.compactmods.crafting.proxies.data.RescanFieldProxyEntity;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class CCBlocks {
 
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, CompactCrafting.MOD_ID);
-    private static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, CompactCrafting.MOD_ID);
+    private static final LazyRegistrar<Block> BLOCKS = LazyRegistrar.create(Registry.BLOCK, CompactCrafting.MOD_ID);
+    private static final LazyRegistrar<BlockEntityType<?>> TILE_ENTITIES = LazyRegistrar.create(Registry.BLOCK_ENTITY_TYPE, CompactCrafting.MOD_ID);
 
     public static final RegistryObject<Block> FIELD_PROJECTOR_BLOCK = BLOCKS.register("field_projector", () ->
             new FieldProjectorBlock(BlockBehaviour.Properties.of(Material.METAL)
@@ -54,8 +54,8 @@ public class CCBlocks {
                     .of(MatchFieldProxyEntity::new, MATCH_FIELD_PROXY_BLOCK.get())
                     .build(null));
 
-    public static void init(IEventBus bus) {
-        BLOCKS.register(bus);
-        TILE_ENTITIES.register(bus);
+    public static void init() {
+        BLOCKS.register();
+        TILE_ENTITIES.register();
     }
 }

@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
 public class CraftingPreviewRenderer {
     public static void render(IMiniaturizationRecipe recipe, double progress, PoseStack stack, MultiBufferSource buffers, int light, int overlay) {
@@ -84,6 +83,6 @@ public class CraftingPreviewRenderer {
         BlockState state1 = comp.getRenderState();
         final Minecraft mc = Minecraft.getInstance();
 
-        blockRenderer.renderSingleBlock(state1, stack, buffers, LightTexture.FULL_SKY, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+        blockRenderer.renderSingleBlock(state1, stack, buffers, LightTexture.FULL_SKY, OverlayTexture.NO_OVERLAY);
     }
 }

@@ -15,19 +15,21 @@ import dev.compactmods.crafting.network.NetworkHandler;
 import dev.compactmods.crafting.projector.FieldProjectorBlock;
 import dev.compactmods.crafting.projector.FieldProjectorEntity;
 import dev.compactmods.crafting.projector.ProjectorHelper;
+import io.github.fabricators_of_create.porting_lib.util.INBTSerializable;
+import me.pepperbell.simplenetworking.S2CPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.network.PacketDistributor;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 
-public class ActiveWorldFields implements IActiveWorldFields, INBTSerializable<ListTag> {
+public class ActiveWorldFields implements IActiveWorldFields {
 
     private Level level;
 
@@ -121,9 +123,10 @@ public class ActiveWorldFields implements IActiveWorldFields, INBTSerializable<L
 
             if (!level.isClientSide && removedField != null) {
                 // Send activation packet to clients
-                NetworkHandler.MAIN_CHANNEL.send(
-                        PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(removedField.getCenter())),
-                        new FieldDeactivatedPacket(removedField.getFieldSize(), removedField.getCenter()));
+                NetworkHandler.MAIN_CHANNEL.sendToClientsTracking(
+                        new FieldDeactivatedPacket(removedField.getFieldSize(), removedField.getCenter()),
+                        (ServerLevel) level, level.getChunkAt(removedField.getCenter()).getPos()
+                        );
             }
         }
     }
@@ -161,15 +164,15 @@ public class ActiveWorldFields implements IActiveWorldFields, INBTSerializable<L
     }
 
     @Override
-    public ListTag serializeNBT() {
-        return getFields()
+    public void writeToNbt(CompoundTag tag) {
+        tag.put("data", getFields()
                 .map(IMiniaturizationField::serverData)
-                .collect(NbtListCollector.toNbtList());
+                .collect(NbtListCollector.toNbtList()));
     }
 
     @Override
-    public void deserializeNBT(ListTag nbt) {
-        nbt.forEach(item -> {
+    public void readFromNbt(CompoundTag tag) {
+        tag.getList("data", Tag.TAG_LIST).forEach(item -> {
             if (item instanceof CompoundTag ct) {
                 MiniaturizationField field = new MiniaturizationField(ct);
                 addFieldInstance(field);

@@ -1,12 +1,15 @@
 package dev.compactmods.crafting.network;
 
-import java.util.function.Supplier;
 import dev.compactmods.crafting.client.ClientPacketHandler;
+import me.pepperbell.simplenetworking.S2CPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
-public class ClientFieldUnwatchPacket {
+public class ClientFieldUnwatchPacket implements S2CPacket {
 
     private final BlockPos center;
 
@@ -18,12 +21,13 @@ public class ClientFieldUnwatchPacket {
         this.center = buf.readBlockPos();
     }
 
-    public static void encode(ClientFieldUnwatchPacket pkt, FriendlyByteBuf buf) {
-        buf.writeBlockPos(pkt.center);
+    @Override
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeBlockPos(center);
     }
 
-    public static boolean handle(ClientFieldUnwatchPacket pkt, Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> ClientPacketHandler.removeField(pkt.center));
-        return true;
+    @Override
+    public void handle(Minecraft client, ClientPacketListener listener, PacketSender responseSender, SimpleChannel channel) {
+        client.execute(() -> ClientPacketHandler.removeField(center));
     }
 }

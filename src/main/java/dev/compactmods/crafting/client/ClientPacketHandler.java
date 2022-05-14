@@ -28,7 +28,7 @@ public abstract class ClientPacketHandler {
             field.setLevel(cw);
             field.loadClientData(fieldClientData);
 
-            mc.level.getCapability(CCCapabilities.FIELDS)
+            CCCapabilities.FIELDS.maybeGet(mc.level)
                     .ifPresent(fields -> fields.registerField(field));
         });
     }
@@ -56,7 +56,7 @@ public abstract class ClientPacketHandler {
         field.setLevel(mc.level);
         field.loadClientData(fieldData);
 
-        mc.level.getCapability(CCCapabilities.FIELDS)
+        CCCapabilities.FIELDS.maybeGet(mc.level)
                 .ifPresent(fields -> {
                     fields.setLevel(mc.level);
                     CompactCrafting.LOGGER.debug("Registering field on client");
@@ -80,7 +80,7 @@ public abstract class ClientPacketHandler {
         if (mc.level == null)
             return;
 
-        mc.level.getCapability(CCCapabilities.FIELDS)
+        CCCapabilities.FIELDS.maybeGet(mc.level)
                 .ifPresent(fields -> fields.unregisterField(fieldCenter));
     }
 
@@ -89,7 +89,7 @@ public abstract class ClientPacketHandler {
         if (mc.level == null)
             return;
 
-        mc.level.getCapability(CCCapabilities.FIELDS)
+        CCCapabilities.FIELDS.maybeGet(mc.level)
                 .lazyMap(af -> af.get(center))
                 .ifPresent(field -> field.ifPresent(f -> f.setRecipe(recipe)));
     }

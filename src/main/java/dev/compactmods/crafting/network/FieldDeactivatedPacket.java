@@ -1,17 +1,18 @@
 package dev.compactmods.crafting.network;
 
-import java.util.function.Supplier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.crafting.api.field.MiniaturizationFieldSize;
 import dev.compactmods.crafting.client.ClientPacketHandler;
+import me.pepperbell.simplenetworking.S2CPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-public class FieldDeactivatedPacket {
+public class FieldDeactivatedPacket implements S2CPacket {
 
     protected static final Codec<FieldDeactivatedPacket> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.xmap(MiniaturizationFieldSize::valueOf, Enum::name)
@@ -41,15 +42,13 @@ public class FieldDeactivatedPacket {
                 .map(BlockPos::immutable).toArray(BlockPos[]::new);
     }
 
-    public static boolean handle(FieldDeactivatedPacket message, Supplier<NetworkEvent.Context> context) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            ClientPacketHandler.handleFieldDeactivation(message.fieldCenter);
-        });
-
-        return true;
+    @Override
+    public void handle(Minecraft client, ClientPacketListener listener, PacketSender responseSender, SimpleChannel channel) {
+        ClientPacketHandler.handleFieldDeactivation(fieldCenter);
     }
 
-    public static void encode(FieldDeactivatedPacket pkt, FriendlyByteBuf buf) {
-        buf.writeWithCodec(CODEC, pkt);
+    @Override
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeWithCodec(CODEC, this);
     }
 }

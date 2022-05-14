@@ -1,17 +1,14 @@
 package dev.compactmods.crafting.field.events;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import dev.compactmods.crafting.api.field.IActiveWorldFields;
-import dev.compactmods.crafting.core.CCCapabilities;
-import net.minecraft.core.Direction;
+import dev.onyxstudios.cca.api.v3.component.Component;
+import io.github.fabricators_of_create.porting_lib.util.INBTSerializable;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraft.nbt.Tag;
 
-class LevelFieldsProvider implements ICapabilitySerializable<ListTag> {
+class LevelFieldsProvider implements Component {
 
     private final LazyOptional<IActiveWorldFields> inst;
 
@@ -19,23 +16,18 @@ class LevelFieldsProvider implements ICapabilitySerializable<ListTag> {
         this.inst = LazyOptional.of(() -> inst);
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-
-        if (cap == CCCapabilities.FIELDS)
-            return inst.cast();
-
-        return LazyOptional.empty();
+    public LazyOptional<IActiveWorldFields> getInst() {
+        return inst;
     }
 
     @Override
-    public ListTag serializeNBT() {
-        return inst.map(INBTSerializable::serializeNBT).orElse(new ListTag());
+    public void writeToNbt(CompoundTag tag) {
+        tag.put("data", inst.map(INBTSerializable::serializeNBT).orElse(new ListTag()));
     }
 
     @Override
-    public void deserializeNBT(ListTag nbt) {
+    public void readFromNbt(CompoundTag tag) {
+        ListTag nbt = tag.getList("data", Tag.TAG_LIST);
         inst.ifPresent(i -> i.deserializeNBT(nbt));
     }
 

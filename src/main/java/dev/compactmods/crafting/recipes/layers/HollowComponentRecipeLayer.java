@@ -1,11 +1,5 @@
 package dev.compactmods.crafting.recipes.layers;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,9 +13,15 @@ import dev.compactmods.crafting.core.CCLayerTypes;
 import dev.compactmods.crafting.util.BlockSpaceUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class HollowComponentRecipeLayer extends ForgeRegistryEntry<RecipeLayerType<?>>
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class HollowComponentRecipeLayer
         implements IRecipeLayer, IDynamicSizedRecipeLayer, ISymmetricalLayer,
         RecipeLayerType<HollowComponentRecipeLayer> {
 

@@ -1,19 +1,17 @@
 package dev.compactmods.crafting.client.ui.container;
 
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 public class TestContainer extends AbstractContainerMenu {
-    private IItemHandler playerInventory;
+    private Inventory playerInventory;
 
     public TestContainer(int cid, Level world, Inventory inv, Player player) {
         super(ContainerRegistration.TEST_CONTAINER.get(), cid);
-        this.playerInventory = new InvWrapper(inv);
+        this.playerInventory = inv;
 
         layoutPlayerInventorySlots(8, 98);
     }
@@ -23,16 +21,16 @@ public class TestContainer extends AbstractContainerMenu {
         return true;
     }
 
-    private int addSlotRange(IItemHandler handler, int index, int x, int y, int amount, int dx) {
+    private int addSlotRange(Inventory handler, int index, int x, int y, int amount, int dx) {
         for (int i = 0 ; i < amount ; i++) {
-            addSlot(new SlotItemHandler(handler, index, x, y));
+            addSlot(new Slot(handler, index, x, y));
             x += dx;
             index++;
         }
         return index;
     }
 
-    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
+    private int addSlotBox(Inventory handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
         for (int j = 0 ; j < verAmount ; j++) {
             index = addSlotRange(handler, index, x, y, horAmount, dx);
             y += dy;

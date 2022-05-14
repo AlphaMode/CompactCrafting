@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "compactcrafting",
+  "version": "${version}",
+
+  "name": "Compact Crafting",
+  "description": "Compact Crafting adds a new crafting system, miniaturization crafting, to Minecraft.\n\nBased off of the Compact Machines mod pre-1.16.",
+  "authors": [
+    "RobotGryphon",
+    "Zorn_Taov",
+    "AlphaMode"
+  ],
+  "contact": {
+    "issues": "https://github.com/AlphaMode/CompactCrafting/issues",
+    "sources": "https://github.com/AlphaMode/CompactCrafting/issues"
+  },
+
+  "license": "MIT",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.compactmods.crafting.CompactCrafting"
+    ],
+    "client": [
+      "dev.compactmods.crafting.client.ClientEventHandler"
+    ],
+    "fabric-datagen": [
+      "dev.compactmods.crafting.datagen.DataGeneration"
+    ],
+    "cardinal-components": [
+      "dev.compactmods.crafting.core.CCCapabilities"
+    ]
+  },
+  "custom": {
+    "cardinal-components": [
+      "compactcrafting:projector_renderer",
+      "compactcrafting:fields"
+    ]
+
+  },
+
+  "accessWidener": "compactcrafting.accesswidener"
+}

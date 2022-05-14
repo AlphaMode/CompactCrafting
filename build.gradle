@@ -1,23 +1,10 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        mavenCentral()
-        mavenLocal()
-    }
-
-    dependencies {
-        classpath "net.minecraftforge.gradle:ForgeGradle:5.1.+"
-    }
-}
-
 plugins {
+    id "fabric-loom" version "0.12-SNAPSHOT"
+    id "maven-publish"
+    id "io.github.juuxel.loom-quiltflower" version "1.+" // Quiltflower, a better decompiler
     id "idea"
     id "eclipse"
-    id "maven-publish"
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
-
-apply plugin: "net.minecraftforge.gradle"
 
 def semver = { ->
     try {
@@ -74,6 +61,10 @@ configurations {
     shade.extendsFrom library
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/compactcrafting.accesswidener")
+}
+
 sourceSets {
     api {
         java {
@@ -113,121 +104,6 @@ sourceSets {
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
-minecraft.runs.all {
-    lazyToken('minecraft_classpath') {
-        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
-    }
-}
-
-minecraft {
-    mappings channel: 'official', version: minecraft_version
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-    def resourcesDir = sourceSets.main.resources.srcDirs.first().absolutePath
-    accessTransformer = file("$resourcesDir/META-INF/accesstransformer.cfg")
-
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
-    runs {
-        client {
-            workingDirectory project.file('run/client')
-
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', '' // 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                compactcrafting {
-                    source sourceSets.main
-                    source sourceSets.api
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run/server')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', '' // ''SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
-
-            environment "CC_TEST_RESOURCES", sourceSets.test.resources.srcDirs[0]
-
-            mods {
-                compactcrafting {
-                    source sourceSets.main
-                    source sourceSets.api
-                    source sourceSets.test
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', '' // 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'compactcrafting'
-            args '--all'
-            args '--output', file('src/generated/resources/')
-            args "--existing", file("src/main/resources")
-
-            forceExit(false)
-            
-            mods {
-                compactcrafting {
-                    source sourceSets.main
-                    source sourceSets.api
-                }
-            }
-        }
-
-        gameTestServer {
-            workingDirectory project.file('run/gametest')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
-
-            environment "CC_TEST_RESOURCES", sourceSets.test.resources.srcDirs[0]
-
-            forceExit(false)
-
-            mods {
-                compactcrafting {
-                    source sourceSets.api
-                    source sourceSets.main
-                    source sourceSets.test
-                }
-            }
-        }
-    }
-}
-
 repositories {
     mavenLocal()
 
@@ -246,9 +122,14 @@ repositories {
 
     // TheOneProbe
     maven {
-        name 'tterrag maven'
-        url "https://maven.tterrag.com/"
-    }
+            name 'wispforest maven'
+            url "https://maven.wispforest.io"
+        }
+        maven { url = "https://mvn.devos.one/releases/" }
+        maven { url = "https://mvn.devos.one/snapshots/" }
+        maven { url = "https://jitpack.io/" }
+        maven { url = "https://maven.shedaniel.me/" }
+        maven { url "https://ladysnake.jfrog.io/artifactory/mods" }
 
     maven {
         name "MCJUnitLib - CM Github"
@@ -268,22 +149,35 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft("com.mojang:minecraft:${project.minecraft_version}")
+    mappings loom.officialMojangMappings()
+    modImplementation("net.fabricmc:fabric-loader:${project.loader_version}")
+    modImplementation(include("io.github.fabricators_of_create:Porting-Lib:${project.port_lib_version}+${project.minecraft_version}.${project.port_lib_hash}"))
+    modImplementation(include("me.alphamode:ForgeTags:${project.forge_tags_version}"))
+
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-block:${project.cca_version}"
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-world:${project.cca_version}"
+    include "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+    include "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
+    include "dev.onyxstudios.cardinal-components-api:cardinal-components-block:${project.cca_version}"
+    include "dev.onyxstudios.cardinal-components-api:cardinal-components-world:${project.cca_version}"
 
     library "io.reactivex.rxjava3:rxjava:3.1.1";
 
     // Nicephore - Screenshots and Stuff
-    runtimeOnly(fg.deobf("curse.maven:nicephore-401014:3574658"))
+    modRuntimeOnly("curse.maven:nicephore-fabric-405990:3651224")
 
     // Shut up Experimental Settings - so we don't have to deal with that CONSTANTLY
-    runtimeOnly(fg.deobf("curse.maven:shutupexperimental-407174:3544525"))
+    modRuntimeOnly("curse.maven:fabric-disable-custom-worlds-advice-401978:3677546")
 
-    // JEI
-    compileOnly fg.deobf("mezz.jei:jei-${jei_mc_version}:${jei_version}:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-${jei_mc_version}:${jei_version}")
+    // REI
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${project.rei_version}")
+    modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
 
     // The One Probe
-    implementation(fg.deobf("curse.maven:theoneprobe-245211:3550084"))
+    modImplementation("mcjty.theoneprobe:theoneprobe-fabric:${top_version}")
 }
 
 processResources {
@@ -294,29 +188,8 @@ processTestResources {
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 }
 
-assemble {
-    dependsOn shadowJar
-}
-
-reobf {
-    shadowJar {}
-}
-
 tasks.withType(Jar).configureEach {
     destinationDir = file("$rootDir/build-out")
-}
-
-shadowJar {
-    classifier ""
-    from sourceSets.api.output
-    from sourceSets.main.output
-
-    configurations = [project.configurations.shade]
-    exclude "LICENSE*"
-    finalizedBy 'reobfShadowJar'
-    minimize()
-    relocate 'io.reactivex', 'dev.compactmods.crafting.lib.reactivex'
-    relocate 'org.reactivestreams', 'dev.compactmods.crafting.lib.reactivestreams'
 }
 
 jar {
@@ -359,17 +232,12 @@ gradle.projectsEvaluated {
     }
 }
 
-artifacts {
-    archives jar, shadowJar, apiJar //, testJar
-}
-
 publishing {
     publications {
         maven(MavenPublication) {
             artifactId = mod_id
             artifacts {
                 artifact(jar)
-                artifact(shadowJar)
                 artifact(apiJar)
                 //artifact(testJar)
             }
@@ -379,7 +247,6 @@ publishing {
             artifactId = mod_id
             artifacts {
                 artifact(jar)
-                artifact(shadowJar)
                 artifact(apiJar)
                 //artifact(testJar)
             }

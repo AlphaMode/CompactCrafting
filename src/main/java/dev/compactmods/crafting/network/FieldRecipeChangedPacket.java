@@ -1,16 +1,20 @@
 package dev.compactmods.crafting.network;
 
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.api.recipe.IMiniaturizationRecipe;
 import dev.compactmods.crafting.client.ClientPacketHandler;
+import me.pepperbell.simplenetworking.S2CPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
 
-public class FieldRecipeChangedPacket {
+import javax.annotation.Nullable;
+
+public class FieldRecipeChangedPacket implements S2CPacket {
 
     private final BlockPos fieldCenter;
 
@@ -30,15 +34,16 @@ public class FieldRecipeChangedPacket {
             this.recipe = null;
     }
 
-    public static void encode(FieldRecipeChangedPacket pkt, FriendlyByteBuf buf) {
-        buf.writeBlockPos(pkt.fieldCenter);
-        buf.writeBoolean(pkt.recipe != null);
-        if(pkt.recipe != null)
-            buf.writeUtf(pkt.recipe.toString());
+    @Override
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeBlockPos(fieldCenter);
+        buf.writeBoolean(recipe != null);
+        if(recipe != null)
+            buf.writeUtf(recipe.toString());
     }
 
-    public static boolean handle(FieldRecipeChangedPacket pkt, Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> ClientPacketHandler.handleRecipeChanged(pkt.fieldCenter, pkt.recipe));
-        return true;
+    @Override
+    public void handle(Minecraft client, ClientPacketListener listener, PacketSender responseSender, SimpleChannel channel) {
+        client.execute(() -> ClientPacketHandler.handleRecipeChanged(fieldCenter, recipe));
     }
 }

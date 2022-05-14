@@ -7,7 +7,6 @@ import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.api.components.IRecipeComponents;
 import dev.compactmods.crafting.api.field.MiniaturizationFieldSize;
 import dev.compactmods.crafting.recipes.MiniaturizationRecipe;
-import dev.compactmods.crafting.tests.components.GameTestAssertions;
 import dev.compactmods.crafting.tests.util.FileHelper;
 import dev.compactmods.crafting.util.BlockSpaceUtil;
 import net.minecraft.core.BlockPos;

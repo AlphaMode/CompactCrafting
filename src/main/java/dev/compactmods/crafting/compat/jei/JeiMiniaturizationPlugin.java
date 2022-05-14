@@ -4,7 +4,12 @@ import java.util.List;
 import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.core.CCItems;
 import dev.compactmods.crafting.core.CCMiniaturizationRecipes;
+import dev.compactmods.crafting.recipes.MiniaturizationRecipe;
 import dev.compactmods.crafting.recipes.setup.RecipeBase;
+import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
+import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
+import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
+import me.shedaniel.rei.api.common.util.EntryStacks;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
@@ -17,28 +22,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 
-@JeiPlugin
-public class JeiMiniaturizationPlugin implements IModPlugin {
+public class JeiMiniaturizationPlugin implements REIClientPlugin {
+
     @Override
-    public ResourceLocation getPluginUid() {
-        return new ResourceLocation(CompactCrafting.MOD_ID, "miniaturization_crafting");
+    public void registerCategories(CategoryRegistry registry) {
+        registry.add(new JeiMiniaturizationCraftingCategory(registration.getJeiHelpers().getGuiHelper()));
+
+        registry.addWorkstations(JeiMiniaturizationCraftingCategory.UID, EntryStacks.of(new ItemStack(CCItems.FIELD_PROJECTOR_ITEM.get(), 4)));
     }
 
     @Override
-    public void registerCategories(IRecipeCategoryRegistration registration) {
-        registration.addRecipeCategories(new JeiMiniaturizationCraftingCategory(registration.getJeiHelpers().getGuiHelper()));
-    }
-
-    @Override
-    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-    }
-
-    @Override
-    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(
-                new ItemStack(CCItems.FIELD_PROJECTOR_ITEM.get(), 4),
-                JeiMiniaturizationCraftingCategory.UID);
-
+    public void registerDisplays(DisplayRegistry registry) {
+        registry.registerFiller(MiniaturizationRecipe.class, JeiMiniaturizationCraftingDisplay::new);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package dev.compactmods.crafting.items;
 
-import javax.annotation.Nullable;
 import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.client.ui.container.TestContainer;
+import io.github.fabricators_of_create.porting_lib.util.NetworkUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +15,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
+
+import javax.annotation.Nullable;
 
 public class TestItem extends Item {
     public TestItem(Properties p_i48487_1_) {
@@ -38,7 +39,7 @@ public class TestItem extends Item {
                 }
             };
 
-            NetworkHooks.openGui((ServerPlayer) player, p);
+            NetworkUtil.openGui((ServerPlayer) player, p, buf -> {});
         }
 
         return InteractionResultHolder.pass(player.getItemInHand(hand));

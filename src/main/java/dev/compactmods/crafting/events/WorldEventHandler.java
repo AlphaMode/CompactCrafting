@@ -8,20 +8,24 @@ import dev.compactmods.crafting.network.ClientFieldWatchPacket;
 import dev.compactmods.crafting.network.NetworkHandler;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.Subject;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraft.world.level.Level;
 
 @SuppressWarnings("unused")
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID)
 public class WorldEventHandler {
+
+    public static void init() {
+        ServerLifecycleEvents.SERVER_STARTED.register(WorldEventHandler::onServerStarted);
+        ServerTickEvents.START_WORLD_TICK.register(WorldEventHandler::onWorldTick);
+        ClientTickEvents.START_WORLD_TICK.register(WorldEventHandler::onWorldTick);
+    }
 
     public static final Subject<ChunkEvent> CHUNK_CHANGES;
 
@@ -29,12 +33,10 @@ public class WorldEventHandler {
         CHUNK_CHANGES = PublishSubject.create();
     }
 
-    @SubscribeEvent
-    public static void onServerStarted(final ServerStartedEvent evt) {
+    public static void onServerStarted(MinecraftServer server) {
         CompactCrafting.LOGGER.trace("Server started; calling previously active fields to validate themselves.");
-        for (ServerLevel level : evt.getServer().getAllLevels()) {
-            level.getCapability(CCCapabilities.FIELDS)
-                    .resolve()
+        for (ServerLevel level : server.getAllLevels()) {
+            CCCapabilities.FIELDS.maybeGet(level)
                     .ifPresent(fields -> {
                         fields.setLevel(level);
                         fields.getFields().forEach(f -> {
@@ -45,11 +47,8 @@ public class WorldEventHandler {
         }
     }
 
-    @SubscribeEvent
-    public static void onWorldTick(final TickEvent.WorldTickEvent evt) {
-        if (evt.phase != TickEvent.Phase.START) return;
-
-        evt.world.getCapability(CCCapabilities.FIELDS)
+    public static void onWorldTick(final Level world) {
+        CCCapabilities.FIELDS.maybeGet(world)
                 .ifPresent(IActiveWorldFields::tickFields);
     }
 
@@ -59,7 +58,7 @@ public class WorldEventHandler {
         final ChunkPos pos = event.getPos();
         final ServerLevel level = event.getWorld();
 
-        level.getCapability(CCCapabilities.FIELDS)
+        CCCapabilities.FIELDS.maybeGet(level)
                 .map(f -> f.getFields(pos))
                 .ifPresent(activeFields -> {
                     activeFields.forEach(field -> {
@@ -79,7 +78,7 @@ public class WorldEventHandler {
         final ChunkPos pos = event.getPos();
         final ServerLevel level = event.getWorld();
 
-        level.getCapability(CCCapabilities.FIELDS)
+        CCCapabilities.FIELDS.maybeGet(level)
                 .map(f -> f.getFields(pos))
                 .ifPresent(activeFields -> {
                     activeFields.forEach(field -> {

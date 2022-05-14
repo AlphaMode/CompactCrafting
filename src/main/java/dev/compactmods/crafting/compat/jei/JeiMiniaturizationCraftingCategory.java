@@ -19,6 +19,12 @@ import dev.compactmods.crafting.core.CCBlocks;
 import dev.compactmods.crafting.recipes.MiniaturizationRecipe;
 import dev.compactmods.crafting.recipes.components.BlockComponent;
 import dev.compactmods.crafting.util.BlockSpaceUtil;
+import me.shedaniel.math.Rectangle;
+import me.shedaniel.rei.api.client.gui.Renderer;
+import me.shedaniel.rei.api.client.gui.widgets.Widget;
+import me.shedaniel.rei.api.client.gui.widgets.Widgets;
+import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
+import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -54,10 +60,10 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import org.lwjgl.BufferUtils;
 
-public class JeiMiniaturizationCraftingCategory implements IRecipeCategory<MiniaturizationRecipe> {
+public class JeiMiniaturizationCraftingCategory implements DisplayCategory<JeiMiniaturizationCraftingDisplay> {
 
-    public static final ResourceLocation UID = new ResourceLocation(CompactCrafting.MOD_ID, "miniaturization");
-    private final IDrawable icon;
+    public static final CategoryIdentifier UID = CategoryIdentifier.of(new ResourceLocation(CompactCrafting.MOD_ID, "miniaturization"));
+    private final Renderer icon;
     private final BlockRenderDispatcher blocks;
     private RenderingWorld previewLevel;
 
@@ -156,6 +162,18 @@ public class JeiMiniaturizationCraftingCategory implements IRecipeCategory<Minia
 
         ing.setInputLists(VanillaTypes.ITEM, inputs);
         ing.setOutputs(VanillaTypes.ITEM, Arrays.asList(recipe.getOutputs()));
+    }
+
+    @Override
+    public List<Widget> setupDisplay(JeiMiniaturizationCraftingDisplay display, Rectangle bounds) {
+        List<Widget> widgets = new ArrayList<>();
+        widgets.add(Widgets.createRecipeBase(bounds));
+        widgets.add(Widgets.createDrawableWidget((helper, poseStack, mouseX, mouseY, partialTick) -> {
+            poseStack.pushPose();
+            poseStack.translate(bounds.getX(), bounds.getY() + 4, 0);
+            draw(display.getRecipe(), poseStack, mouseX, mouseY);
+            poseStack.popPose();
+        }));
     }
 
     @Override
@@ -319,7 +337,6 @@ public class JeiMiniaturizationCraftingCategory implements IRecipeCategory<Minia
 
     //endregion
 
-    @Override
     public void draw(MiniaturizationRecipe recipe, PoseStack mx, double mouseX, double mouseY) {
         AABB dims = recipe.getDimensions();
 

@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.LazyOptional;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 
 public class BlankMiniaturizationField implements IMiniaturizationField {
     @Override

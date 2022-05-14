@@ -1,14 +1,10 @@
 package dev.compactmods.crafting.server;
 
 import com.electronwill.nightconfig.core.EnumGetMethod;
-import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.api.FieldDestabilizeHandling;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.config.ModConfig;
 
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ServerConfig {
 
     public static ForgeConfigSpec CONFIG;
@@ -67,8 +63,7 @@ public class ServerConfig {
         CONFIG = builder.build();
     }
 
-    @SubscribeEvent
-    public static void onConfigEvent(final ModConfigEvent configEvent) {
+    public static void onConfigEvent(ModConfig config) {
         ServerConfig.DESTABILIZE_HANDLING = ServerConfig.FIELD_DESTABILIZE_HANDLING.get();
     }
 }

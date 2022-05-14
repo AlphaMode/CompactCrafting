@@ -1,21 +1,23 @@
 package dev.compactmods.crafting.network;
 
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.api.field.MiniaturizationFieldSize;
 import dev.compactmods.crafting.client.ClientPacketHandler;
 import dev.compactmods.crafting.field.MiniaturizationField;
+import me.pepperbell.simplenetworking.S2CPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
 
-public class FieldActivatedPacket {
+import javax.annotation.Nullable;
+
+public class FieldActivatedPacket implements S2CPacket {
 
     private IMiniaturizationField field;
 
@@ -49,17 +51,15 @@ public class FieldActivatedPacket {
         this.clientData = base.clientData;
     }
 
-    public static void handle(FieldActivatedPacket message, Supplier<NetworkEvent.Context> context) {
-        NetworkEvent.Context ctx = context.get();
-
-        ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            ClientPacketHandler.handleFieldActivation(message.field, message.clientData);
-        }));
-
-        ctx.setPacketHandled(true);
+    @Override
+    public void handle(Minecraft client, ClientPacketListener listener, PacketSender responseSender, SimpleChannel channel) {
+        client.execute(() -> {
+            ClientPacketHandler.handleFieldActivation(field, clientData);
+        });
     }
 
-    public static void encode(FieldActivatedPacket pkt, FriendlyByteBuf buf) {
-        buf.writeWithCodec(CODEC, pkt);
+    @Override
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeWithCodec(CODEC, this);
     }
 }

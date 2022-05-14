@@ -17,7 +17,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
 public class GhostRenderer {
     public static void renderTransparentBlock(BlockState state, @Nullable BlockPos pos, PoseStack matrix, MultiBufferSource buffer) {
@@ -36,10 +35,10 @@ public class GhostRenderer {
         BakedModel model = dispatcher.getBlockModel(state);
         if (model != mc.getModelManager().getMissingModel()) {
             for(Direction dir : Direction.values())
-                model.getQuads(state, dir, new Random(42L), EmptyModelData.INSTANCE)
+                model.getQuads(state, dir, new Random(42L))
                         .forEach(quad -> addQuad(state, pos, matrix, mc, colors, builder, quad, alpha));
 
-            model.getQuads(state, null, new Random(42L), EmptyModelData.INSTANCE)
+            model.getQuads(state, null, new Random(42L))
                     .forEach(quad -> addQuad(state, pos, matrix, mc, colors, builder, quad, alpha));
         }
     }
@@ -57,7 +56,7 @@ public class GhostRenderer {
                 red,
                 green,
                 blue,
-                trueAlpha,
+//                trueAlpha, TODO: PORT?
                 LightTexture.FULL_SKY, OverlayTexture.NO_OVERLAY);
     }
 }

@@ -1,6 +1,5 @@
 package dev.compactmods.crafting.command;
 
-import java.util.concurrent.TimeUnit;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -12,18 +11,15 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+import java.util.concurrent.TimeUnit;
+
 public class CraftingCommandRoot {
 
     static Disposable PREV;
 
-    @SubscribeEvent
-    public static void onCommandsRegister(final RegisterCommandsEvent event) {
-        register(event.getDispatcher());
+    public static void onCommandsRegister(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+        register(dispatcher);
     }
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

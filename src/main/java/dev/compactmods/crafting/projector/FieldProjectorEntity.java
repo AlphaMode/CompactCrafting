@@ -6,6 +6,8 @@ import dev.compactmods.crafting.api.field.IActiveWorldFields;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.core.CCBlocks;
 import dev.compactmods.crafting.core.CCCapabilities;
+import io.github.fabricators_of_create.porting_lib.block.CustomRenderBoundingBoxBlockEntity;
+import io.github.fabricators_of_create.porting_lib.util.OnLoadBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -15,9 +17,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 
-public class FieldProjectorEntity extends BlockEntity {
+public class FieldProjectorEntity extends BlockEntity implements OnLoadBlockEntity, CustomRenderBoundingBoxBlockEntity {
 
     protected LazyOptional<IMiniaturizationField> fieldCap = LazyOptional.empty();
     protected LazyOptional<IActiveWorldFields> levelFields = LazyOptional.empty();
@@ -33,13 +35,11 @@ public class FieldProjectorEntity extends BlockEntity {
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        this.levelFields = this.level.getCapability(CCCapabilities.FIELDS);
+        this.levelFields = LazyOptional.fromOptional(CCCapabilities.FIELDS.maybeGet(this.level));
     }
 
     @Override
     public void onLoad() {
-        super.onLoad();
-
         if (level != null) {
             if(level.isClientSide) {
                 loadFieldFromState();

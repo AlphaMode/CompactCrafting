@@ -10,6 +10,7 @@ import dev.compactmods.crafting.core.CCCapabilities;
 import dev.compactmods.crafting.field.MiniaturizationField;
 import dev.compactmods.crafting.network.FieldActivatedPacket;
 import dev.compactmods.crafting.network.NetworkHandler;
+import io.github.fabricators_of_create.porting_lib.util.LevelUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -30,7 +31,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.PacketDistributor;
 
 public class FieldProjectorBlock extends Block implements EntityBlock {
 
@@ -144,7 +144,7 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
         if (world.isClientSide) {
             final boolean hasMissing = ProjectorHelper.getMissingProjectors(world, pos, state.getValue(FACING)).findAny().isPresent();
             if(hasMissing) {
-                player.getCapability(CCCapabilities.TEMP_PROJECTOR_RENDERING)
+                CCCapabilities.TEMP_PROJECTOR_RENDERING.maybeGet(player)
                         .ifPresent(rend -> {
                             rend.resetRenderTime();
                             rend.setProjector(world, pos);
@@ -214,11 +214,11 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
             if (server == null)
                 return;
 
-            if (level.isAreaLoaded(fieldCenter, fieldSize.getProjectorDistance())) {
+            if (LevelUtil.isAreaLoaded(level, fieldCenter, fieldSize.getProjectorDistance())) {
                 fieldSize.getProjectorLocations(fieldCenter).forEach(proj -> activateProjector(level, proj, fieldSize));
 
                 final BlockPos center = getFieldCenter(state, pos);
-                level.getCapability(CCCapabilities.FIELDS).ifPresent(fields -> {
+                CCCapabilities.FIELDS.maybeGet(level).ifPresent(fields -> {
                     if (!fields.hasActiveField(center)) {
                         final IMiniaturizationField field = fields.registerField(MiniaturizationField.fromSizeAndCenter(fieldSize, center));
                         field.checkLoaded();
@@ -250,7 +250,7 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
             fieldSize.getProjectorLocations(fieldCenter).forEach(proj -> deactivateProjector(level, proj));
 
             // Remove field registration - this will also update clients
-            level.getCapability(CCCapabilities.FIELDS).ifPresent(fields -> {
+            CCCapabilities.FIELDS.maybeGet(level).ifPresent(fields -> {
                 if (fields.hasActiveField(fieldCenter)) {
                     final IMiniaturizationField field = fields.get(fieldCenter).orElse(null);
                     if (field == null) return;
@@ -287,7 +287,7 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
             // not active, but we may be re-enabling a disabled field
             ProjectorHelper.getClosestOppositeSize(level, pos).ifPresent(size -> {
                 final BlockPos center = size.getCenterFromProjector(pos, state.getValue(FACING));
-                level.getCapability(CCCapabilities.FIELDS).ifPresent(fields -> {
+                CCCapabilities.FIELDS.maybeGet(level).ifPresent(fields -> {
                     fields.get(center).ifPresent(IMiniaturizationField::checkRedstone);
                 });
             });

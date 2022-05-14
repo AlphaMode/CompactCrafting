@@ -2,15 +2,17 @@ package dev.compactmods.crafting.api.field;
 
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import dev.onyxstudios.cca.api.v3.component.Component;
+import io.github.fabricators_of_create.porting_lib.util.INBTSerializable;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.common.util.LazyOptional;
 
-public interface IActiveWorldFields extends INBTSerializable<ListTag> {
+public interface IActiveWorldFields extends Component {
 
     void setLevel(Level level);
 

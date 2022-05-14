@@ -10,8 +10,7 @@ import dev.compactmods.crafting.proxies.listener.MatchModeProxyFieldListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 
 public class MatchFieldProxyEntity extends BaseFieldProxyEntity {
     protected LazyOptional<IFieldListener> listener = LazyOptional.empty();

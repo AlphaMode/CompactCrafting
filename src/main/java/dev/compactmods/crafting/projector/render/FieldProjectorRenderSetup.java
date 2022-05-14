@@ -1,44 +1,36 @@
 package dev.compactmods.crafting.projector.render;
 
-import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.core.CCBlocks;
 import dev.compactmods.crafting.core.CCItems;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ForgeModelBakery;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class FieldProjectorRenderSetup {
 
-    @SubscribeEvent
-    public static void regRenderer(final EntityRenderersEvent.RegisterRenderers evt) {
-        evt.registerBlockEntityRenderer(CCBlocks.FIELD_PROJECTOR_TILE.get(), FieldProjectorRenderer::new);
+    public static void regRenderer() {
+        BlockEntityRendererRegistry.register(CCBlocks.FIELD_PROJECTOR_TILE.get(), FieldProjectorRenderer::new);
     }
 
-    @SubscribeEvent
-    public static void init(final FMLClientSetupEvent event) {
-        ItemBlockRenderTypes.setRenderLayer(CCBlocks.FIELD_PROJECTOR_BLOCK.get(), RenderType.cutoutMipped());
+    public static void init() {
+        BlockRenderLayerMap.INSTANCE.putBlock(CCBlocks.FIELD_PROJECTOR_BLOCK.get(), RenderType.cutoutMipped());
+        regRenderer();
+        onBlockColors();
+        onItemColors();
+        registerSpecialModels();
     }
 
-    @SubscribeEvent
-    public static void onBlockColors(final ColorHandlerEvent.Block colors) {
-        colors.getBlockColors().register(new FieldProjectorColors.Block(), CCBlocks.FIELD_PROJECTOR_BLOCK.get());
+    public static void onBlockColors() {
+        ColorProviderRegistry.BLOCK.register(new FieldProjectorColors.Block(), CCBlocks.FIELD_PROJECTOR_BLOCK.get());
     }
 
-    @SubscribeEvent
-    public static void onItemColors(final ColorHandlerEvent.Item itemColors) {
-        itemColors.getItemColors().register(new FieldProjectorColors.Item(), CCItems.FIELD_PROJECTOR_ITEM.get());
+    public static void onItemColors() {
+        ColorProviderRegistry.ITEM.register(new FieldProjectorColors.Item(), CCItems.FIELD_PROJECTOR_ITEM.get());
     }
 
-    @SubscribeEvent
-    public static void registerSpecialModels(final ModelRegistryEvent registryEvent) {
-        ForgeModelBakery.addSpecialModel(FieldProjectorRenderer.FIELD_DISH_RL);
+    public static void registerSpecialModels() {
+        ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> out.accept(FieldProjectorRenderer.FIELD_DISH_RL));
     }
 }

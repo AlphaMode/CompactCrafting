@@ -10,6 +10,12 @@ import dev.compactmods.crafting.api.projector.IProjectorRenderInfo;
 import dev.compactmods.crafting.api.recipe.IMiniaturizationRecipe;
 import dev.compactmods.crafting.core.CCCapabilities;
 import dev.compactmods.crafting.field.render.CraftingPreviewRenderer;
+import dev.compactmods.crafting.projector.render.FieldProjectorRenderSetup;
+import dev.compactmods.crafting.proxies.render.ProxyRenderSetup;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -20,51 +26,49 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class ClientEventHandler {
+public class ClientEventHandler implements ClientModInitializer {
 
-    @SubscribeEvent
-    public static void onTick(final TickEvent.ClientTickEvent evt) {
-        if (evt.phase != TickEvent.Phase.START) return;
+    @Override
+    public void onInitializeClient() {
+        ProxyRenderSetup.init();
+        ClientTickEvents.START_CLIENT_TICK.register(ClientEventHandler::onTick);
+        WorldRenderEvents.LAST.register(ClientEventHandler::onWorldRender);
+        FieldProjectorRenderSetup.init();
+    }
 
+    public static void onTick(Minecraft client) {
         final LocalPlayer player = Minecraft.getInstance().player;
         if(player != null) {
-            player.getCapability(CCCapabilities.TEMP_PROJECTOR_RENDERING)
+            CCCapabilities.TEMP_PROJECTOR_RENDERING.maybeGet(player)
                     .ifPresent(IProjectorRenderInfo::tick);
         }
 
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null && !Minecraft.getInstance().isPaused()) {
-            level.getCapability(CCCapabilities.FIELDS)
+            CCCapabilities.FIELDS.maybeGet(level)
                     .ifPresent(IActiveWorldFields::tickFields);
         }
     }
 
-    @SubscribeEvent
-    public static void onWorldRender(final RenderLevelLastEvent event) {
+    public static void onWorldRender(WorldRenderContext context) {
         final Minecraft mc = Minecraft.getInstance();
 
         if (mc.level == null)
             return;
 
-        doProjectorRender(event, mc);
-        doFieldPreviewRender(event, mc);
+        doProjectorRender(context, mc);
+        doFieldPreviewRender(context, mc);
     }
 
     @Nonnull
-    private static void doFieldPreviewRender(RenderLevelLastEvent event, Minecraft mc) {
+    private static void doFieldPreviewRender(WorldRenderContext context, Minecraft mc) {
         final Camera mainCamera = mc.gameRenderer.getMainCamera();
         final HitResult hitResult = mc.hitResult;
 
         double viewDistance = 64;
         final MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
-        mc.level.getCapability(CCCapabilities.FIELDS)
+        CCCapabilities.FIELDS.maybeGet(mc.level)
                 .ifPresent(fields -> {
                     fields.getFields()
                             .filter(field -> Vec3.atCenterOf(field.getCenter()).closerThan(mainCamera.getPosition(), viewDistance))
@@ -74,7 +78,7 @@ public class ClientEventHandler {
                             .forEach(field -> {
                                 BlockPos center = field.getCenter();
 
-                                PoseStack stack = event.getPoseStack();
+                                PoseStack stack = context.matrixStack();
                                 stack.pushPose();
                                 Vec3 projectedView = mainCamera.getPosition();
                                 stack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
@@ -99,8 +103,8 @@ public class ClientEventHandler {
         buffers.endBatch();
     }
 
-    private static void doProjectorRender(RenderLevelLastEvent event, Minecraft mc) {
-        mc.player.getCapability(CCCapabilities.TEMP_PROJECTOR_RENDERING)
-                .ifPresent(render -> render.render(event.getPoseStack()));
+    private static void doProjectorRender(WorldRenderContext context, Minecraft mc) {
+        CCCapabilities.TEMP_PROJECTOR_RENDERING.maybeGet(mc.player)
+                .ifPresent(render -> render.render(context.matrixStack()));
     }
 }

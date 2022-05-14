@@ -11,6 +11,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.compactmods.crafting.recipes.MiniaturizationRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class RenderingChunkProvider extends ChunkSource {
     private final Holder<Biome> VOID;
@@ -31,7 +31,7 @@ public class RenderingChunkProvider extends ChunkSource {
     private final LevelLightEngine lightManager;
 
     public RenderingChunkProvider(RenderingWorld renderingLevel, MiniaturizationRecipe recipe) {
-        VOID = ForgeRegistries.BIOMES.getHolder(Biomes.THE_VOID).get();
+        VOID = BuiltinRegistries.BIOME.getHolder(Biomes.THE_VOID).get();
 
         this.recipe = recipe;
 

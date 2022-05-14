@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -32,12 +33,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.common.util.LazyOptional;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 
 public class FieldProjectorRenderer implements BlockEntityRenderer<FieldProjectorEntity> {
 
-    public static final ResourceLocation FIELD_DISH_RL = new ResourceLocation(CompactCrafting.MOD_ID, "block/field_projector_dish");
+    public static final ModelResourceLocation FIELD_DISH_RL = new ModelResourceLocation(CompactCrafting.MOD_ID, "block/field_projector_dish");
 
     private BakedModel bakedModelCached;
 
@@ -127,7 +127,7 @@ public class FieldProjectorRenderer implements BlockEntityRenderer<FieldProjecto
                         red,
                         green,
                         blue,
-                        combinedLight, combinedOverlay, EmptyModelData.INSTANCE);
+                        combinedLight, combinedOverlay);
 
         mx.popPose();
     }

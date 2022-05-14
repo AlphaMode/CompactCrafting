@@ -4,6 +4,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.core.CCCapabilities;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
+import io.github.fabricators_of_create.porting_lib.util.OnLoadBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -11,10 +13,8 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
-public abstract class BaseFieldProxyEntity extends BlockEntity {
+public abstract class BaseFieldProxyEntity extends BlockEntity implements OnLoadBlockEntity {
 
     @Nullable
     protected BlockPos fieldCenter;
@@ -27,11 +27,8 @@ public abstract class BaseFieldProxyEntity extends BlockEntity {
 
     @Override
     public void onLoad() {
-        super.onLoad();
-
         if(fieldCenter != null && level != null) {
-            level.getCapability(CCCapabilities.FIELDS)
-                    .resolve()
+            CCCapabilities.FIELDS.maybeGet(level)
                     .ifPresent(fields -> fieldChanged(fields.getLazy(fieldCenter)));
         }
     }
@@ -46,7 +43,7 @@ public abstract class BaseFieldProxyEntity extends BlockEntity {
             return;
         }
 
-        level.getCapability(CCCapabilities.FIELDS)
+        CCCapabilities.FIELDS.maybeGet(level)
                 .map(fields -> fields.getLazy(fieldCenter))
                 .ifPresent(f -> {
                     this.fieldCenter = fieldCenter;

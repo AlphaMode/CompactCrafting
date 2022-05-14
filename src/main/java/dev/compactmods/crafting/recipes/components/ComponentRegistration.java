@@ -2,24 +2,20 @@ package dev.compactmods.crafting.recipes.components;
 
 import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.api.components.RecipeComponentType;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.*;
 
-import java.util.function.Supplier;
-
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ComponentRegistration {
 
     public static final ResourceLocation RECIPE_COMPONENTS_ID = new ResourceLocation(CompactCrafting.MOD_ID, "recipe_components");
 
-    @SuppressWarnings("unchecked")
-    public static DeferredRegister<RecipeComponentType<?>> RECIPE_COMPONENTS = DeferredRegister.create(RECIPE_COMPONENTS_ID, CompactCrafting.MOD_ID);
+    public static Registry<RecipeComponentType> COMPONENTS = FabricRegistryBuilder.createSimple(RecipeComponentType.class, RECIPE_COMPONENTS_ID).buildAndRegister();
 
-    public static Supplier<IForgeRegistry<RecipeComponentType<?>>> COMPONENTS;
+    @SuppressWarnings("unchecked")
+    public static LazyRegistrar<RecipeComponentType> RECIPE_COMPONENTS = LazyRegistrar.create(COMPONENTS, CompactCrafting.MOD_ID);
 
     // ================================================================================================================
     //   RECIPE COMPONENTS
@@ -38,17 +34,7 @@ public class ComponentRegistration {
         return (Class<T>) cls;
     }
 
-    public static void init(IEventBus modBus) {
-        RECIPE_COMPONENTS.register(modBus);
-    }
-
-    @SubscribeEvent
-    @SuppressWarnings("unused")
-    public static void newRegistries(final NewRegistryEvent evt) {
-        final var b = new RegistryBuilder<RecipeComponentType<?>>()
-                .setName(RECIPE_COMPONENTS_ID)
-                .setType(c(RecipeComponentType.class));
-
-        COMPONENTS = evt.create(b);
+    public static void init() {
+        RECIPE_COMPONENTS.register();
     }
 }

@@ -1,18 +1,18 @@
 package dev.compactmods.crafting.core;
 
-import java.util.function.Supplier;
 import dev.compactmods.crafting.CompactCrafting;
 import dev.compactmods.crafting.items.FieldProjectorItem;
 import dev.compactmods.crafting.proxies.item.FieldProxyItem;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
+import net.minecraft.core.Registry;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class CCItems {
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CompactCrafting.MOD_ID);
+    private static final LazyRegistrar<Item> ITEMS = LazyRegistrar.create(Registry.ITEM, CompactCrafting.MOD_ID);
 
     // ================================================================================================================
 
@@ -35,7 +35,7 @@ public class CCItems {
 
     // ================================================================================================================
 
-    public static void init(IEventBus bus) {
-        ITEMS.register(bus);
+    public static void init() {
+        ITEMS.register();
     }
 }

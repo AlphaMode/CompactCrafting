@@ -1,25 +1,19 @@
 package dev.compactmods.crafting.core;
 
 import dev.compactmods.crafting.CompactCrafting;
-import dev.compactmods.crafting.api.components.RecipeComponentType;
 import dev.compactmods.crafting.recipes.MiniaturizationRecipe;
 import dev.compactmods.crafting.recipes.MiniaturizationRecipeSerializer;
 import dev.compactmods.crafting.recipes.setup.BaseRecipeType;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.*;
-
-import static dev.compactmods.crafting.recipes.components.ComponentRegistration.c;
 
 
 public class CCMiniaturizationRecipes {
 
-    private static final DeferredRegister<RecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, CompactCrafting.MOD_ID);
+    private static final LazyRegistrar<RecipeSerializer<?>> RECIPES = LazyRegistrar.create(Registry.RECIPE_SERIALIZER, CompactCrafting.MOD_ID);
 
     // ================================================================================================================
 
@@ -31,15 +25,8 @@ public class CCMiniaturizationRecipes {
 
     // ================================================================================================================
 
-    public static void init(IEventBus eventBus) {
-        RECIPES.register(eventBus);
-    }
-
-    @SubscribeEvent
-    @SuppressWarnings("unused")
-    public static void newRegistries(final RegistryEvent.Register<Block> evt) {
-        // Recipe Types (Forge Registry setup does not call this yet)
+    public static void init() {
+        RECIPES.register();
         MINIATURIZATION_RECIPE_TYPE.register();
     }
-
 }

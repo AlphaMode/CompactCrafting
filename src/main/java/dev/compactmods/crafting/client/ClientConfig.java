@@ -3,11 +3,8 @@ package dev.compactmods.crafting.client;
 import dev.compactmods.crafting.CompactCrafting;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.config.ModConfig;
 
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientConfig {
 
     public static ForgeConfigSpec CONFIG;
@@ -61,8 +58,7 @@ public class ClientConfig {
         CONFIG = builder.build();
     }
 
-    @SubscribeEvent
-    public static void onLoad(final ModConfigEvent configEvent) {
+    public static void onLoad(ModConfig config) {
         projectorColor = extractHexColor(PROJECTOR_COLOR.get(), 0x00FF6A00);
         projectorOffColor = extractHexColor(PROJECTOR_OFF_COLOR.get(), 0x00898989);
         placementTime = PLACEMENT_TIME.get();

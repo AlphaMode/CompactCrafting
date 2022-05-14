@@ -9,16 +9,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.compactmods.crafting.api.catalyst.CatalystType;
 import dev.compactmods.crafting.api.catalyst.ICatalystMatcher;
 import dev.compactmods.crafting.core.CCCatalystTypes;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class ItemStackCatalystMatcher extends ForgeRegistryEntry<CatalystType<?>>
-        implements ICatalystMatcher, CatalystType<ItemStackCatalystMatcher> {
+public class ItemStackCatalystMatcher implements ICatalystMatcher, CatalystType<ItemStackCatalystMatcher> {
 
     public static final Codec<ItemStackCatalystMatcher> CODEC = RecordCodecBuilder.create(i -> i.group(
             ResourceLocation.CODEC.fieldOf("item").forGetter(ItemStackCatalystMatcher::getItemId),
@@ -40,7 +38,7 @@ public class ItemStackCatalystMatcher extends ForgeRegistryEntry<CatalystType<?>
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public ItemStackCatalystMatcher(ResourceLocation item, Optional<CompoundTag> nbt) {
-        this.item = ForgeRegistries.ITEMS.getValue(item);
+        this.item = Registry.ITEM.get(item);
         this.nbtMatcher = buildMatcher(nbt.orElse(null));
     }
 
@@ -85,7 +83,7 @@ public class ItemStackCatalystMatcher extends ForgeRegistryEntry<CatalystType<?>
 
 
     public ResourceLocation getItemId() {
-        return item.getRegistryName();
+        return Registry.ITEM.getKey(item);
     }
 
     public boolean matches(ItemStack stack) {

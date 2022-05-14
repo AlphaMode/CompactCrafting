@@ -1,22 +1,23 @@
 package dev.compactmods.crafting.datagen;
 
-import java.util.function.Consumer;
 import dev.compactmods.crafting.core.CCItems;
-import net.minecraft.data.DataGenerator;
+import me.alphamode.forgetags.Tags;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.Tags;
 
-public class RecipeGenerator extends RecipeProvider {
-    public RecipeGenerator(DataGenerator gen) {
+import java.util.function.Consumer;
+
+public class RecipeGenerator extends FabricRecipeProvider {
+    public RecipeGenerator(FabricDataGenerator gen) {
         super(gen);
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void generateRecipes(Consumer<FinishedRecipe> consumer) {
         ShapelessRecipeBuilder.shapeless(CCItems.FIELD_PROJECTOR_ITEM.get(), 1)
                 .requires(CCItems.BASE_ITEM.get())
                 .requires(CCItems.PROJECTOR_DISH_ITEM.get())

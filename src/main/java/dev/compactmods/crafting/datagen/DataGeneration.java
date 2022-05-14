@@ -1,31 +1,29 @@
 package dev.compactmods.crafting.datagen;
 
-import dev.compactmods.crafting.CompactCrafting;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
-@Mod.EventBusSubscriber(modid = CompactCrafting.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class DataGeneration {
+public class DataGeneration implements DataGeneratorEntrypoint {
 
-    @SubscribeEvent
-    public static void gatherData(final GatherDataEvent event) {
-        if (event.includeServer())
-            registerServerProviders(event.getGenerator(), event);
+    @Override
+    public void onInitializeDataGenerator(FabricDataGenerator gen) {
+//        if (event.includeServer())
+            registerServerProviders(gen);
 
-        if (event.includeClient())
-            registerClientProviders(event.getGenerator(), event);
+//        if (event.includeClient())
+            registerClientProviders(gen, null);
     }
 
-    private static void registerServerProviders(DataGenerator generator, GatherDataEvent event) {
+    private static void registerServerProviders(FabricDataGenerator generator) {
         generator.addProvider(new LootTableGenerator(generator));
         generator.addProvider(new RecipeGenerator(generator));
     }
 
-    private static void registerClientProviders(DataGenerator generator, GatherDataEvent event) {
-        generator.addProvider(new SharedStateGenerator(generator, event.getExistingFileHelper()));
-        generator.addProvider(new ProjectorStateGenerator(generator, event.getExistingFileHelper()));
-        generator.addProvider(new ProxyStateGenerator(generator, event.getExistingFileHelper()));
+    private static void registerClientProviders(DataGenerator generator, ExistingFileHelper helper) {
+        generator.addProvider(new SharedStateGenerator(generator, helper));
+        generator.addProvider(new ProjectorStateGenerator(generator, helper));
+        generator.addProvider(new ProxyStateGenerator(generator, helper));
     }
 }

@@ -1,14 +1,17 @@
 package dev.compactmods.crafting.network;
 
-import java.util.function.Supplier;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.client.ClientPacketHandler;
 import dev.compactmods.crafting.field.MiniaturizationField;
+import me.pepperbell.simplenetworking.S2CPacket;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
-public class ClientFieldWatchPacket {
+public class ClientFieldWatchPacket implements S2CPacket {
 
     private final IMiniaturizationField field;
     private final CompoundTag clientData;
@@ -23,12 +26,13 @@ public class ClientFieldWatchPacket {
         this.clientData = buf.readAnySizeNbt();
     }
 
-    public static void encode(ClientFieldWatchPacket pkt, FriendlyByteBuf buf) {
-        buf.writeNbt(pkt.field.clientData());
+    @Override
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeNbt(field.clientData());
     }
 
-    public static boolean handle(ClientFieldWatchPacket pkt, Supplier<NetworkEvent.Context> context) {
-        ClientPacketHandler.handleFieldData(pkt.clientData);
-        return true;
+    @Override
+    public void handle(Minecraft client, ClientPacketListener listener, PacketSender responseSender, SimpleChannel channel) {
+        ClientPacketHandler.handleFieldData(clientData);
     }
 }

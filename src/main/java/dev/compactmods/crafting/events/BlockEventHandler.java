@@ -1,71 +1,70 @@
 package dev.compactmods.crafting.events;
 
 import dev.compactmods.crafting.CompactCrafting;
-import static dev.compactmods.crafting.CompactCrafting.MOD_ID;
 import dev.compactmods.crafting.field.FieldHelper;
 import dev.compactmods.crafting.field.MissingFieldsException;
-import net.minecraft.world.entity.LivingEntity;
+import io.github.fabricators_of_create.porting_lib.event.common.BlockPlaceCallback;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-
-import dev.compactmods.crafting.field.FieldHelper;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 @SuppressWarnings("unused")
-@Mod.EventBusSubscriber(modid = MOD_ID)
 public class BlockEventHandler {
 
-    @SubscribeEvent
-    static void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
-        final LivingEntity entity = event.getEntityLiving();
-        final BlockHitResult hitVec = event.getHitVec();
+    public static void init() {
+        UseBlockCallback.EVENT.register(BlockEventHandler::onRightClickBlock);
+        PlayerBlockBreakEvents.BEFORE.register(BlockEventHandler::onBlockDestroyed);
+        BlockPlaceCallback.EVENT.register(BlockEventHandler::onBlockPlaced);
 
-        Level w = event.getWorld();
+    }
 
+    static InteractionResult onRightClickBlock(Player player, Level w, InteractionHand hand, BlockHitResult hitVec) {
         if(w.isClientSide) {
             final BlockPos placedAt = hitVec.getBlockPos().relative(hitVec.getDirection());
             try {
                 final boolean allowPlace = FieldHelper.checkBlockPlacement(w, placedAt);
                 if (!allowPlace) {
-                    event.setCanceled(true);
+                    return InteractionResult.SUCCESS;
                 }
 
             } catch (MissingFieldsException e) {
                 CompactCrafting.LOGGER.error("Missing the active miniaturization fields capability in the level. Report this!");
             }
         }
+        return InteractionResult.PASS;
     }
 
-    @SubscribeEvent
-    static void onBlockPlaced(final BlockEvent.EntityPlaceEvent blockPlaced) {
-        blockHandler(blockPlaced);
+    static InteractionResult onBlockPlaced(BlockPlaceContext context) {
+        return !blockHandler(context.getLevel(), context.getClickedPos()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 
-    @SubscribeEvent
-    static void onBlockDestroyed(final BlockEvent.BreakEvent blockDestroyed) {
-        blockHandler(blockDestroyed);
+    static boolean onBlockDestroyed(Level world, Player player, BlockPos pos, BlockState state, /* Nullable */ BlockEntity blockEntity) {
+        return blockHandler(world, pos);
     }
 
-    private static void blockHandler(final BlockEvent event) {
+    private static boolean blockHandler(LevelAccessor world, BlockPos pos) {
         // Check if block is in or around a projector field
-        LevelAccessor world = event.getWorld();
-        BlockPos pos = event.getPos();
 
         // Send the event position over to the field helper, so any nearby projectors can be notified
         if (world instanceof Level) {
             try {
                 boolean allowPlace = FieldHelper.checkBlockPlacement((Level) world, pos);
                 if (!allowPlace) {
-                    event.setCanceled(true);
+                   return false;
                 }
             } catch (MissingFieldsException e) {
                 CompactCrafting.LOGGER.error("Missing the active miniaturization fields capability in the level. Report this!");
             }
         }
+        return true;
     }
 }
