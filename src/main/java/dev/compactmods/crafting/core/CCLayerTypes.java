@@ -23,13 +23,13 @@ public class CCLayerTypes {
     // region  RECIPE LAYER SERIALIZERS
     // ================================================================================================================
     public static final RegistryObject<RecipeLayerType<FilledComponentRecipeLayer>> FILLED_LAYER_SERIALIZER =
-            RECIPE_LAYERS.register("filled", FilledComponentRecipeLayer::new);
+            RECIPE_LAYERS.register("filled", new FilledComponentRecipeLayer());
 
     public static final RegistryObject<RecipeLayerType<HollowComponentRecipeLayer>> HOLLOW_LAYER_TYPE =
-            RECIPE_LAYERS.register("hollow", HollowComponentRecipeLayer::new);
+            RECIPE_LAYERS.register("hollow", new HollowComponentRecipeLayer());
 
     public static final RegistryObject<RecipeLayerType<MixedComponentRecipeLayer>> MIXED_LAYER_TYPE =
-            RECIPE_LAYERS.register("mixed", MixedComponentRecipeLayer::new);
+            RECIPE_LAYERS.register("mixed", new MixedComponentRecipeLayer());
 
     // endregion ======================================================================================================
 

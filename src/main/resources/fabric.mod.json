@@ -30,12 +30,17 @@
     ],
     "cardinal-components": [
       "dev.compactmods.crafting.core.CCCapabilities"
+    ],
+    "rei": [
+      "dev.compactmods.crafting.compat.jei.JeiMiniaturizationPlugin"
     ]
   },
   "custom": {
     "cardinal-components": [
       "compactcrafting:projector_renderer",
-      "compactcrafting:fields"
+      "compactcrafting:fields",
+      "compactcrafting:field_listener",
+      "compactcrafting:miniaturization_field"
     ]
 
   },

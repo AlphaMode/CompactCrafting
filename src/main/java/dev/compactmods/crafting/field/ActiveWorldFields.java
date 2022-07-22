@@ -164,15 +164,15 @@ public class ActiveWorldFields implements IActiveWorldFields {
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag) {
-        tag.put("data", getFields()
+    public ListTag serializeNBT() {
+        return getFields()
                 .map(IMiniaturizationField::serverData)
-                .collect(NbtListCollector.toNbtList()));
+                .collect(NbtListCollector.toNbtList());
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag) {
-        tag.getList("data", Tag.TAG_LIST).forEach(item -> {
+    public void deserializeNBT(ListTag nbt) {
+        nbt.forEach(item -> {
             if (item instanceof CompoundTag ct) {
                 MiniaturizationField field = new MiniaturizationField(ct);
                 addFieldInstance(field);

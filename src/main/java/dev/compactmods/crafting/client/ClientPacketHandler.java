@@ -9,6 +9,7 @@ import dev.compactmods.crafting.core.CCCapabilities;
 import dev.compactmods.crafting.field.MiniaturizationField;
 import dev.compactmods.crafting.projector.FieldProjectorBlock;
 import dev.compactmods.crafting.projector.FieldProjectorEntity;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -29,7 +30,7 @@ public abstract class ClientPacketHandler {
             field.loadClientData(fieldClientData);
 
             CCCapabilities.FIELDS.maybeGet(mc.level)
-                    .ifPresent(fields -> fields.registerField(field));
+                    .ifPresent(fields -> fields.getInst().registerField(field));
         });
     }
 
@@ -37,12 +38,12 @@ public abstract class ClientPacketHandler {
         Minecraft mc = Minecraft.getInstance();
         mc.submitAsync(() -> {
             ClientLevel cw = mc.level;
-            cw.getCapability(CCCapabilities.FIELDS).ifPresent(fields -> {
-                fields.get(center).map(IMiniaturizationField::getProjectorPositions)
+            CCCapabilities.FIELDS.maybeGet(cw).ifPresent(fields -> {
+                fields.getInst().get(center).map(IMiniaturizationField::getProjectorPositions)
                         .orElse(Stream.empty())
                         .forEach(proj -> FieldProjectorBlock.deactivateProjector(cw, proj));
 
-                fields.unregisterField(center);
+                fields.getInst().unregisterField(center);
             });
         });
     }
@@ -58,9 +59,9 @@ public abstract class ClientPacketHandler {
 
         CCCapabilities.FIELDS.maybeGet(mc.level)
                 .ifPresent(fields -> {
-                    fields.setLevel(mc.level);
+                    fields.getInst().setLevel(mc.level);
                     CompactCrafting.LOGGER.debug("Registering field on client");
-                    final IMiniaturizationField fieldRegistered = fields.registerField(field);
+                    final IMiniaturizationField fieldRegistered = fields.getInst().registerField(field);
 
                     CompactCrafting.LOGGER.debug("Setting field references");
 
@@ -81,7 +82,7 @@ public abstract class ClientPacketHandler {
             return;
 
         CCCapabilities.FIELDS.maybeGet(mc.level)
-                .ifPresent(fields -> fields.unregisterField(fieldCenter));
+                .ifPresent(fields -> fields.getInst().unregisterField(fieldCenter));
     }
 
     public static void handleRecipeChanged(BlockPos center, @Nullable ResourceLocation recipe) {
@@ -89,8 +90,8 @@ public abstract class ClientPacketHandler {
         if (mc.level == null)
             return;
 
-        CCCapabilities.FIELDS.maybeGet(mc.level)
-                .lazyMap(af -> af.get(center))
+        LazyOptional.fromOptional(CCCapabilities.FIELDS.maybeGet(mc.level))
+                .lazyMap(af -> af.getInst().get(center))
                 .ifPresent(field -> field.ifPresent(f -> f.setRecipe(recipe)));
     }
 }

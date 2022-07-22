@@ -10,6 +10,7 @@ import dev.compactmods.crafting.api.components.IRecipeBlockComponent;
 import dev.compactmods.crafting.api.components.IRecipeComponent;
 import dev.compactmods.crafting.api.components.RecipeComponentType;
 import dev.compactmods.crafting.util.CodecExtensions;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -143,6 +144,6 @@ public class BlockComponent implements IRecipeComponent, IRecipeBlockComponent {
 
     @Override
     public String toString() {
-        return String.format("Block {%s}", block.getRegistryName());
+        return String.format("Block {%s}", Registry.BLOCK.getKey(block));
     }
 }

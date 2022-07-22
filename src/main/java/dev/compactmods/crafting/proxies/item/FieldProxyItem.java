@@ -91,9 +91,9 @@ public class FieldProxyItem extends BlockItem {
 
                 FieldProjectorEntity tile = (FieldProjectorEntity) level.getBlockEntity(usedAt);
                 if (tile != null) {
-                    tile.getCapability(CCCapabilities.MINIATURIZATION_FIELD)
+                    CCCapabilities.MINIATURIZATION_FIELD.maybeGet(tile)
                             .ifPresent(field -> {
-                                BlockPos fieldCenter = field.getCenter();
+                                BlockPos fieldCenter = field.getField().getCenter();
 
                                 // write field center
                                 stack.getOrCreateTagElement("field")

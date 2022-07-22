@@ -47,8 +47,7 @@ public class ItemTagCatalystMatcher
         if (tag == null)
             return Collections.emptySet();
 
-        final var it = Registry.ITEM.tags();
-        final var tag2 = it.getTag(tag);
+        final var tag2 = Registry.ITEM.getTag(tag).get();
         return tag2.stream()
                 .map(ItemStack::new)
                 .collect(Collectors.toSet());

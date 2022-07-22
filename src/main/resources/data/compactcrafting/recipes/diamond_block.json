@@ -1,0 +1,56 @@
+{
+  "type": "compactcrafting:miniaturization",
+  "recipeSize": 5,
+  "layers": [
+    {
+      "type": "compactcrafting:filled",
+      "component": "C"
+    },
+    {
+      "type": "compactcrafting:hollow",
+      "wall": "C"
+    },
+    {
+      "type": "compactcrafting:mixed",
+      "pattern": [
+        ["C", "C", "C", "C", "C"],
+        ["C", "-", "-", "-", "C"],
+        ["C", "-", "D", "-", "C"],
+        ["C", "-", "-", "-", "C"],
+        ["C", "C", "C", "C", "C"]
+      ]
+    },
+    {
+      "type": "compactcrafting:hollow",
+      "wall": "C"
+    },
+    {
+      "type": "compactcrafting:filled",
+      "component": "C"
+    }
+  ],
+
+  "catalyst": {
+    "id": "minecraft:diamond",
+    "Count": 1
+  },
+
+  "components": {
+    "C": {
+      "type": "compactcrafting:block",
+      "block": "minecraft:coal_block"
+    },
+
+    "D": {
+      "type": "compactcrafting:block",
+      "block": "minecraft:diamond_block"
+    }
+  },
+
+  "outputs": [
+    {
+      "id": "minecraft:diamond_block",
+      "Count": 27
+    }
+  ]
+}

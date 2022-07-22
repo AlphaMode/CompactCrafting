@@ -24,9 +24,9 @@ public class MatchFieldProxyBlock extends FieldProxyBlock implements EntityBlock
 
         MatchFieldProxyEntity tile = (MatchFieldProxyEntity) level.getBlockEntity(placedAt);
         if (tile != null) {
-            tile.getCapability(CCCapabilities.MINIATURIZATION_FIELD)
+            CCCapabilities.MINIATURIZATION_FIELD.maybeGet(tile)
                     .ifPresent(field -> {
-                        int signal = field.getCurrentRecipe().isPresent() ? 15 : 0;
+                        int signal = field.getField().getCurrentRecipe().isPresent() ? 15 : 0;
                         level.setBlock(placedAt, currState.setValue(SIGNAL, signal), Block.UPDATE_ALL);
                     });
         }

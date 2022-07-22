@@ -1,20 +1,19 @@
 package dev.compactmods.crafting.proxies.data;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.core.CCCapabilities;
+import io.github.fabricators_of_create.porting_lib.extensions.BlockEntityExtensions;
 import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
-import io.github.fabricators_of_create.porting_lib.util.OnLoadBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class BaseFieldProxyEntity extends BlockEntity implements OnLoadBlockEntity {
+import javax.annotation.Nullable;
+
+public abstract class BaseFieldProxyEntity extends BlockEntity implements BlockEntityExtensions {
 
     @Nullable
     protected BlockPos fieldCenter;
@@ -29,7 +28,7 @@ public abstract class BaseFieldProxyEntity extends BlockEntity implements OnLoad
     public void onLoad() {
         if(fieldCenter != null && level != null) {
             CCCapabilities.FIELDS.maybeGet(level)
-                    .ifPresent(fields -> fieldChanged(fields.getLazy(fieldCenter)));
+                    .ifPresent(fields -> fieldChanged(fields.getInst().getLazy(fieldCenter)));
         }
     }
 
@@ -44,7 +43,7 @@ public abstract class BaseFieldProxyEntity extends BlockEntity implements OnLoad
         }
 
         CCCapabilities.FIELDS.maybeGet(level)
-                .map(fields -> fields.getLazy(fieldCenter))
+                .map(fields -> fields.getInst().getLazy(fieldCenter))
                 .ifPresent(f -> {
                     this.fieldCenter = fieldCenter;
 
@@ -54,21 +53,14 @@ public abstract class BaseFieldProxyEntity extends BlockEntity implements OnLoad
 
     protected void fieldChanged(LazyOptional<IMiniaturizationField> f) {
         this.field = f;
+        CCCapabilities.MINIATURIZATION_FIELD.get(this).setMiniaturizationField(this.field.getValueUnsafer());
 
         // field invalidated somewhere
         f.addListener(lof -> {
             this.field = LazyOptional.empty();
+            CCCapabilities.MINIATURIZATION_FIELD.get(this).setMiniaturizationField(null);
             this.fieldCenter = null;
         });
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if(cap == CCCapabilities.MINIATURIZATION_FIELD)
-            return field.cast();
-
-        return super.getCapability(cap, side);
     }
 
     @Override

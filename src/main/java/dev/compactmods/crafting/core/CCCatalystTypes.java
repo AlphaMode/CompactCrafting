@@ -22,10 +22,10 @@ public class CCCatalystTypes {
     // ================================================================================================================
 
     public static final RegistryObject<CatalystType<ItemStackCatalystMatcher>> ITEM_STACK_CATALYST =
-            CATALYSTS.register("item", ItemStackCatalystMatcher::new);
+            CATALYSTS.register("item", new ItemStackCatalystMatcher());
 
     public static final RegistryObject<CatalystType<ItemTagCatalystMatcher>> TAGGED_ITEM_CATALYST =
-            CATALYSTS.register("tag", ItemTagCatalystMatcher::new);
+            CATALYSTS.register("tag", new ItemTagCatalystMatcher());
 
     public static void init() {
         CATALYSTS.register();

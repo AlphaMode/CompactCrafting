@@ -14,6 +14,7 @@ import io.github.fabricators_of_create.porting_lib.util.LevelUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -219,8 +220,8 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
 
                 final BlockPos center = getFieldCenter(state, pos);
                 CCCapabilities.FIELDS.maybeGet(level).ifPresent(fields -> {
-                    if (!fields.hasActiveField(center)) {
-                        final IMiniaturizationField field = fields.registerField(MiniaturizationField.fromSizeAndCenter(fieldSize, center));
+                    if (!fields.getInst().hasActiveField(center)) {
+                        final IMiniaturizationField field = fields.getInst().registerField(MiniaturizationField.fromSizeAndCenter(fieldSize, center));
                         field.checkLoaded();
                         field.fieldContentsChanged();
 
@@ -231,9 +232,7 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
 //                                    .forEach(tile -> tile.setFieldRef(field.getRef()));
 
                         // Send activation packet to clients
-                        NetworkHandler.MAIN_CHANNEL.send(
-                                PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(field.getCenter())),
-                                new FieldActivatedPacket(field));
+                        NetworkHandler.MAIN_CHANNEL.sendToClientsTracking(new FieldActivatedPacket(field), (ServerLevel) level, level.getChunkAt(field.getCenter()).getPos());
                     }
                 });
             }
@@ -251,12 +250,12 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
 
             // Remove field registration - this will also update clients
             CCCapabilities.FIELDS.maybeGet(level).ifPresent(fields -> {
-                if (fields.hasActiveField(fieldCenter)) {
-                    final IMiniaturizationField field = fields.get(fieldCenter).orElse(null);
+                if (fields.getInst().hasActiveField(fieldCenter)) {
+                    final IMiniaturizationField field = fields.getInst().get(fieldCenter).orElse(null);
                     if (field == null) return;
 
                     if (field.enabled()) {
-                        fields.unregisterField(fieldCenter);
+                        fields.getInst().unregisterField(fieldCenter);
                         field.handleDestabilize();
                         field.dispose();
                     }
@@ -288,7 +287,7 @@ public class FieldProjectorBlock extends Block implements EntityBlock {
             ProjectorHelper.getClosestOppositeSize(level, pos).ifPresent(size -> {
                 final BlockPos center = size.getCenterFromProjector(pos, state.getValue(FACING));
                 CCCapabilities.FIELDS.maybeGet(level).ifPresent(fields -> {
-                    fields.get(center).ifPresent(IMiniaturizationField::checkRedstone);
+                    fields.getInst().get(center).ifPresent(IMiniaturizationField::checkRedstone);
                 });
             });
         }

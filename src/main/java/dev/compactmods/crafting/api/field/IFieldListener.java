@@ -2,6 +2,7 @@ package dev.compactmods.crafting.api.field;
 
 import javax.annotation.Nullable;
 import dev.compactmods.crafting.api.recipe.IMiniaturizationRecipe;
+import dev.onyxstudios.cca.api.v3.component.Component;
 
 public interface IFieldListener {
 

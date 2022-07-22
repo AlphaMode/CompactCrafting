@@ -24,6 +24,7 @@ import dev.compactmods.crafting.recipes.MiniaturizationRecipe;
 import dev.compactmods.crafting.recipes.blocks.RecipeBlocks;
 import dev.compactmods.crafting.server.ServerConfig;
 import dev.compactmods.crafting.util.BlockSpaceUtil;
+import io.github.fabricators_of_create.porting_lib.util.LevelUtil;
 import io.reactivex.rxjava3.disposables.Disposable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -117,9 +118,9 @@ public class MiniaturizationField implements IMiniaturizationField {
         final Set<ChunkPos> insideChunks = getProjectorPositions().map(ChunkPos::new).distinct().collect(Collectors.toSet());
         insideChunks.add(new ChunkPos(center));
 
-        CHUNK_LISTENER = WorldEventHandler.CHUNK_CHANGES.filter(ce -> {
-            boolean sameLevel = ((LevelChunk) ce.getChunk()).getLevel().dimension().equals(level.dimension());
-            boolean watchedChunk = insideChunks.contains(ce.getChunk().getPos());
+        CHUNK_LISTENER = WorldEventHandler.CHUNK_CHANGES.filter(chunk -> {
+            boolean sameLevel = ((LevelChunk) chunk).getLevel().dimension().equals(level.dimension());
+            boolean watchedChunk = insideChunks.contains(chunk.getPos());
             return sameLevel && watchedChunk;
         }).subscribe((changed) -> this.checkLoaded());
     }
@@ -390,10 +391,7 @@ public class MiniaturizationField implements IMiniaturizationField {
 
         // Send tracking client updates
         if (!level.isClientSide) {
-            NetworkHandler.MAIN_CHANNEL.send(
-                    PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(center)),
-                    new FieldRecipeChangedPacket(this)
-            );
+            NetworkHandler.MAIN_CHANNEL.sendToClientsTracking(new FieldRecipeChangedPacket(this), (ServerLevel) level, level.getChunkAt(center).getPos());
         }
 
         // Update all listeners as well
@@ -425,7 +423,7 @@ public class MiniaturizationField implements IMiniaturizationField {
 
     public void checkLoaded() {
         CompactCrafting.LOGGER.debug("Checking loaded state.");
-        this.loaded = level.isAreaLoaded(center, size.getProjectorDistance() + 3);
+        this.loaded = LevelUtil.isAreaLoaded(level, center, size.getProjectorDistance() + 3);
 
         if (loaded) {
             listeners.forEach(l -> l.ifPresent(fl -> fl.onFieldActivated(this)));
@@ -559,8 +557,7 @@ public class MiniaturizationField implements IMiniaturizationField {
         });
 
         FieldDeactivatedPacket update = new FieldDeactivatedPacket(size, center);
-        NetworkHandler.MAIN_CHANNEL.send(
-                PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(center)), update);
+        NetworkHandler.MAIN_CHANNEL.sendToClientsTracking(update, (ServerLevel) level, level.getChunkAt(center).getPos());
     }
 
     @Override
@@ -576,8 +573,7 @@ public class MiniaturizationField implements IMiniaturizationField {
         });
 
         FieldActivatedPacket update = new FieldActivatedPacket(this);
-        NetworkHandler.MAIN_CHANNEL.send(
-                PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(center)), update);
+        NetworkHandler.MAIN_CHANNEL.sendToClientsTracking(update, (ServerLevel) level, level.getChunkAt(center).getPos());
     }
 
     @Override

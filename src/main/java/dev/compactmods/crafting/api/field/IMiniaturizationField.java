@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import dev.compactmods.crafting.api.EnumCraftingState;
 import dev.compactmods.crafting.api.recipe.IMiniaturizationRecipe;
+import dev.onyxstudios.cca.api.v3.component.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

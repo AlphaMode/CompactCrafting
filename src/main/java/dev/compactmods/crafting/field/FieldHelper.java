@@ -7,6 +7,7 @@ import dev.compactmods.crafting.api.field.IActiveWorldFields;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.api.field.MiniaturizationFieldSize;
 import dev.compactmods.crafting.core.CCCapabilities;
+import dev.compactmods.crafting.field.events.LevelFieldsProvider;
 import dev.compactmods.crafting.projector.FieldProjectorBlock;
 import dev.compactmods.crafting.server.ServerConfig;
 import net.minecraft.core.BlockPos;
@@ -33,10 +34,10 @@ public abstract class FieldHelper {
 
         final Vec3 centerBlockChanged = Vec3.atCenterOf(pos);
         if (nearbyProjectors.length > 0) {
-            final IActiveWorldFields fields = level.getCapability(CCCapabilities.FIELDS)
+            final LevelFieldsProvider fields = CCCapabilities.FIELDS.maybeGet(level)
                     .orElseThrow(() -> new MissingFieldsException("Could not fetch fields off level: " + level.dimension()));
 
-            final Optional<IMiniaturizationField> affectedField = fields.getFields()
+            final Optional<IMiniaturizationField> affectedField = fields.getInst().getFields()
                     .filter(field -> field.getBounds().contains(centerBlockChanged))
                     .findFirst();
 

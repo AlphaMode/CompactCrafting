@@ -1,12 +1,11 @@
 package dev.compactmods.crafting.projector;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import dev.compactmods.crafting.api.field.IActiveWorldFields;
 import dev.compactmods.crafting.api.field.IMiniaturizationField;
 import dev.compactmods.crafting.core.CCBlocks;
 import dev.compactmods.crafting.core.CCCapabilities;
 import io.github.fabricators_of_create.porting_lib.block.CustomRenderBoundingBoxBlockEntity;
+import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 import io.github.fabricators_of_create.porting_lib.util.OnLoadBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,8 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 
 public class FieldProjectorEntity extends BlockEntity implements OnLoadBlockEntity, CustomRenderBoundingBoxBlockEntity {
 
@@ -35,7 +32,8 @@ public class FieldProjectorEntity extends BlockEntity implements OnLoadBlockEnti
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        this.levelFields = LazyOptional.fromOptional(CCCapabilities.FIELDS.maybeGet(this.level));
+        this.levelFields = LazyOptional.ofObject(CCCapabilities.FIELDS.maybeGet(this.level).get().getInst());
+        CCCapabilities.FIELDS.get(this).setInst(this.levelFields);
     }
 
     @Override
@@ -56,18 +54,7 @@ public class FieldProjectorEntity extends BlockEntity implements OnLoadBlockEnti
             BlockState state = getBlockState();
             return fields.getLazy(FieldProjectorBlock.getFieldCenter(state, worldPosition));
         }).orElse(LazyOptional.empty());
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CCCapabilities.FIELDS)
-            return levelFields.cast();
-
-        if (cap == CCCapabilities.MINIATURIZATION_FIELD)
-            return fieldCap.cast();
-
-        return super.getCapability(cap, side);
+        CCCapabilities.MINIATURIZATION_FIELD.get(this).setMiniaturizationField(fieldCap.getValueUnsafer());
     }
 
     @Override
@@ -85,6 +72,7 @@ public class FieldProjectorEntity extends BlockEntity implements OnLoadBlockEnti
 
     public void setFieldRef(LazyOptional<IMiniaturizationField> fieldRef) {
         this.fieldCap = fieldRef;
+        CCCapabilities.MINIATURIZATION_FIELD.get(this).setMiniaturizationField(fieldCap.getValueUnsafer());
         setChanged();
     }
 }

@@ -19,7 +19,7 @@ public final class RecipeLayerTypeCodec implements Codec<RecipeLayerType<?>> {
         if(!CCLayerTypes.RECIPE_LAYER_TYPES.containsKey(id))
             return DataResult.error("Unknown registry key: " + id);
 
-        return DataResult.success(keyValuePair.mapFirst(CCLayerTypes.RECIPE_LAYER_TYPES::getValue));
+        return DataResult.success(keyValuePair.mapFirst(CCLayerTypes.RECIPE_LAYER_TYPES::get));
     }
 
     @Override
@@ -29,7 +29,7 @@ public final class RecipeLayerTypeCodec implements Codec<RecipeLayerType<?>> {
 
     @Override
     public <T> DataResult<T> encode(RecipeLayerType<?> input, DynamicOps<T> ops, T prefix) {
-        ResourceLocation key = input.getRegistryName();
+        ResourceLocation key = CCLayerTypes.RECIPE_LAYER_TYPES.getKey(input);
         if(key == null)
             return DataResult.error("Unknown registry element " + input);
 

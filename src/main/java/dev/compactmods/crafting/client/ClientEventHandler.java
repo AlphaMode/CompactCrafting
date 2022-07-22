@@ -33,7 +33,7 @@ public class ClientEventHandler implements ClientModInitializer {
     public void onInitializeClient() {
         ProxyRenderSetup.init();
         ClientTickEvents.START_CLIENT_TICK.register(ClientEventHandler::onTick);
-        WorldRenderEvents.LAST.register(ClientEventHandler::onWorldRender);
+        WorldRenderEvents.END.register(ClientEventHandler::onWorldRender);
         FieldProjectorRenderSetup.init();
     }
 
@@ -47,7 +47,7 @@ public class ClientEventHandler implements ClientModInitializer {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null && !Minecraft.getInstance().isPaused()) {
             CCCapabilities.FIELDS.maybeGet(level)
-                    .ifPresent(IActiveWorldFields::tickFields);
+                    .ifPresent(levelFieldsProvider -> levelFieldsProvider.getInst().tickFields());
         }
     }
 
@@ -70,7 +70,7 @@ public class ClientEventHandler implements ClientModInitializer {
         final MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
         CCCapabilities.FIELDS.maybeGet(mc.level)
                 .ifPresent(fields -> {
-                    fields.getFields()
+                    fields.getInst().getFields()
                             .filter(field -> Vec3.atCenterOf(field.getCenter()).closerThan(mainCamera.getPosition(), viewDistance))
                             .filter(field -> field.getCraftingState() == EnumCraftingState.CRAFTING)
                             .filter(field -> field.getCurrentRecipe().isPresent())

@@ -1,23 +1,33 @@
 package dev.compactmods.crafting.field.events;
 
 import dev.compactmods.crafting.api.field.IActiveWorldFields;
+import dev.compactmods.crafting.field.ActiveWorldFields;
 import dev.onyxstudios.cca.api.v3.component.Component;
 import io.github.fabricators_of_create.porting_lib.util.INBTSerializable;
 import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-class LevelFieldsProvider implements Component {
+public class LevelFieldsProvider implements Component {
 
-    private final LazyOptional<IActiveWorldFields> inst;
+    private LazyOptional<IActiveWorldFields> inst;
 
-    LevelFieldsProvider(IActiveWorldFields inst) {
-        this.inst = LazyOptional.of(() -> inst);
+    public LevelFieldsProvider(BlockEntity blockEntity) {
+
     }
 
-    public LazyOptional<IActiveWorldFields> getInst() {
-        return inst;
+    public LevelFieldsProvider(ActiveWorldFields activeWorldFields) {
+        this.inst = LazyOptional.of(() -> activeWorldFields);
+    }
+
+    public IActiveWorldFields getInst() {
+        return inst.getValueUnsafer();
+    }
+
+    public void setInst(LazyOptional<IActiveWorldFields> inst) {
+        this.inst = inst;
     }
 
     @Override

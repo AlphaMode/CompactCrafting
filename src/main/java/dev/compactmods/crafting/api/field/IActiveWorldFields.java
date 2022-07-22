@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
-public interface IActiveWorldFields extends Component {
+public interface IActiveWorldFields extends INBTSerializable<ListTag> {
 
     void setLevel(Level level);
 

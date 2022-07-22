@@ -36,13 +36,13 @@ public class FieldInfoCommand {
         final CommandSourceStack src = ctx.getSource();
         final ServerLevel level = src.getLevel();
 
-        level.getCapability(CCCapabilities.FIELDS).ifPresent(fields -> {
-            if (!fields.hasActiveField(pos)) {
+        CCCapabilities.FIELDS.maybeGet(level).ifPresent(fields -> {
+            if (!fields.getInst().hasActiveField(pos)) {
                 src.sendFailure(new TranslatableComponent("messages." + CompactCrafting.MOD_ID + ".no_field_found", pos));
                 return;
             }
 
-            fields.get(pos).ifPresent(field -> outputStdFieldInfo(src, field));
+            fields.getInst().get(pos).ifPresent(field -> outputStdFieldInfo(src, field));
         });
 
         return 0;
@@ -60,7 +60,7 @@ public class FieldInfoCommand {
                 return 0;
             }
 
-            ent.getCapability(CCCapabilities.MINIATURIZATION_FIELD).ifPresent(field -> outputStdFieldInfo(src, field));
+            CCCapabilities.MINIATURIZATION_FIELD.maybeGet(ent).ifPresent(field -> outputStdFieldInfo(src, field.getField()));
         } else {
             src.sendFailure(new TranslatableComponent("messages." + CompactCrafting.MOD_ID + ".no_field_cap", pos));
         }

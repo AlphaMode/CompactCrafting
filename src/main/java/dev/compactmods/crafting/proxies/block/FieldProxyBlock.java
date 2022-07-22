@@ -2,6 +2,7 @@ package dev.compactmods.crafting.proxies.block;
 
 import javax.annotation.Nullable;
 import dev.compactmods.crafting.proxies.data.BaseFieldProxyEntity;
+import io.github.fabricators_of_create.porting_lib.block.ConnectableRedstoneBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +20,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class FieldProxyBlock extends Block {
+public abstract class FieldProxyBlock extends Block implements ConnectableRedstoneBlock {
     public static IntegerProperty SIGNAL = BlockStateProperties.POWER;
 
     private static final VoxelShape BASE = Shapes.box(0, 0, 0, 1, 6 / 16d, 1);

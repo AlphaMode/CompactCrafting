@@ -18,6 +18,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -139,4 +140,10 @@ public class ClientProjectorRenderInfo implements IProjectorRenderInfo {
                     .forEach(pos -> this.remainingProjectors.put(pos, initialFacing.getOpposite()));
         }
     }
+
+    @Override
+    public void readFromNbt(CompoundTag tag) {}
+
+    @Override
+    public void writeToNbt(CompoundTag tag) {}
 }

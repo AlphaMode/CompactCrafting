@@ -37,7 +37,7 @@ import io.github.fabricators_of_create.porting_lib.util.LazyOptional;
 
 public class FieldProjectorRenderer implements BlockEntityRenderer<FieldProjectorEntity> {
 
-    public static final ModelResourceLocation FIELD_DISH_RL = new ModelResourceLocation(CompactCrafting.MOD_ID, "block/field_projector_dish");
+    public static final ResourceLocation FIELD_DISH_RL = new ResourceLocation(CompactCrafting.MOD_ID, "block/field_projector_dish");
 
     private BakedModel bakedModelCached;
 
@@ -79,7 +79,7 @@ public class FieldProjectorRenderer implements BlockEntityRenderer<FieldProjecto
                     .getBlockModelShaper()
                     .getModelManager();
 
-            bakedModelCached = models.getModel(FIELD_DISH_RL);
+            bakedModelCached = models.bakedRegistry.getOrDefault(FIELD_DISH_RL, models.getMissingModel());
         }
 
         return bakedModelCached;

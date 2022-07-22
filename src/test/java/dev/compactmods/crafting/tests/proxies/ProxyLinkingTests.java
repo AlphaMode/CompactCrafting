@@ -20,6 +20,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 @PrefixGameTestTemplate(false)
 @GameTestHolder(CompactCrafting.MOD_ID)
@@ -37,7 +38,7 @@ public class ProxyLinkingTests {
     public static void CanLinkProxy(GameTestHelper test) {
         MatchFieldProxyEntity proxy = setupProxyForMediumField(test);
 
-        final var cap = proxy.getCapability(CCCapabilities.MINIATURIZATION_FIELD);
+        final var cap = CCCapabilities.MINIATURIZATION_FIELD.maybeGet(proxy);
 
         if (!cap.isPresent())
             test.fail("Expected proxy to have a field reference.");
@@ -62,7 +63,7 @@ public class ProxyLinkingTests {
                 new ResourceLocation("compactcrafting", "recipes/ender_crystal"),
                 new BlockPos(4, 1, 4));
 
-        proxy.getCapability(CCCapabilities.MINIATURIZATION_FIELD)
+        CCCapabilities.MINIATURIZATION_FIELD.maybeGet(proxy)
                 .ifPresent(IMiniaturizationField::fieldContentsChanged);
     }
 
@@ -72,7 +73,7 @@ public class ProxyLinkingTests {
 
         MatchFieldProxyEntity proxy = setupProxyForMediumField(test);
 
-        final LazyOptional<IMiniaturizationField> fieldRef = proxy.getCapability(CCCapabilities.MINIATURIZATION_FIELD);
+        final Optional<IMiniaturizationField> fieldRef = CCCapabilities.MINIATURIZATION_FIELD.maybeGet(proxy);
 
         // Ensure proxy is connected to field
         if (!fieldRef.isPresent())
@@ -82,7 +83,7 @@ public class ProxyLinkingTests {
         test.destroyBlock(relNorthProjector);
 
         test.runAfterDelay(5, () -> {
-            final LazyOptional<IMiniaturizationField> fieldPostBreak = proxy.getCapability(CCCapabilities.MINIATURIZATION_FIELD);
+            final Optional<IMiniaturizationField> fieldPostBreak = CCCapabilities.MINIATURIZATION_FIELD.maybeGet(proxy);
             if (fieldPostBreak.isPresent())
                 test.fail("Field capability instance is still available after the field destabilized.");
 

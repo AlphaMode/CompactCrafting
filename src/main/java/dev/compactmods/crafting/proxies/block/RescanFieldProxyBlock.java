@@ -34,10 +34,10 @@ public class RescanFieldProxyBlock extends FieldProxyBlock implements EntityBloc
         if (level.hasNeighborSignal(thisPos)) {
             // call recipe scan
             if (tile != null) {
-                tile.getCapability(CCCapabilities.MINIATURIZATION_FIELD)
+                CCCapabilities.MINIATURIZATION_FIELD.maybeGet(tile)
                         .ifPresent(field -> {
-                            if(field.getCraftingState() != EnumCraftingState.CRAFTING)
-                                field.fieldContentsChanged();
+                            if(field.getField().getCraftingState() != EnumCraftingState.CRAFTING)
+                                field.getField().fieldContentsChanged();
                         });
             }
         }
